@@ -1,5 +1,7 @@
 local pile = script.Parent
 local prompt = pile:WaitForChild("ProximityPrompt")
+prompt.ActionText = "Search for Pickles"
+prompt.ObjectText = "Pickle Barrel"
 local Players = game:GetService("Players")
 local random = Random.new()
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -16,11 +18,11 @@ local cooldownSeconds = 5.5 -- 3.5-second spin + 1.5-second result + a small buf
 
 -- Weights add up to 100, so these are percentage chances.
 local items = {
-	{name = "Rusty Bolt", weight = 50, color = Color3.fromRGB(200, 200, 200)},
-	{name = "Copper Wire", weight = 30, color = Color3.fromRGB(200, 200, 200)},
-	{name = "Broken Phone", weight = 15, color = Color3.fromRGB(90, 230, 120)},
-	{name = "Old Graphics Card", weight = 4, color = Color3.fromRGB(100, 170, 255)},
-	{name = "Alien Battery", weight = 1, color = Color3.fromRGB(255, 210, 60)},
+	{name = "Dill Pickle", weight = 50, color = Color3.fromRGB(200, 200, 200)},
+	{name = "Sweet Pickle", weight = 30, color = Color3.fromRGB(200, 200, 200)},
+	{name = "Spicy Pickle", weight = 15, color = Color3.fromRGB(90, 230, 120)},
+	{name = "Golden Pickle", weight = 4, color = Color3.fromRGB(100, 170, 255)},
+	{name = "Cosmic Pickle", weight = 1, color = Color3.fromRGB(255, 210, 60)},
 }
 
 local function chooseItem()
