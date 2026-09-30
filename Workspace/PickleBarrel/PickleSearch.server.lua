@@ -5,13 +5,13 @@ prompt.ObjectText = "Pickle Barrel"
 local Players = game:GetService("Players")
 local random = Random.new()
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local rollEvent = ReplicatedStorage:FindFirstChild("ScrapRollResult")
+local rollEvent = ReplicatedStorage:FindFirstChild("PickleRollResult")
 if not rollEvent then
 	rollEvent = Instance.new("RemoteEvent")
-	rollEvent.Name = "ScrapRollResult"
+	rollEvent.Name = "PickleRollResult"
 	rollEvent.Parent = ReplicatedStorage
 end
-assert(rollEvent:IsA("RemoteEvent"), "ScrapRollResult must be a RemoteEvent")
+assert(rollEvent:IsA("RemoteEvent"), "PickleRollResult must be a RemoteEvent")
 
 local cooldowns = {}
 local cooldownSeconds = 5.5 -- 3.5-second spin + 1.5-second result + a small buffer.
@@ -38,7 +38,7 @@ local function chooseItem()
 end
 
 local searchAnimation = Instance.new("Animation")
-searchAnimation.Name = "SearchPile"
+searchAnimation.Name = "SearchPickles"
 searchAnimation.AnimationId = "rbxassetid://71576008338045"
 searchAnimation.Parent = script
 
@@ -98,7 +98,7 @@ local function playSearch(player, character, humanoid, root)
 	end
 	if root.Parent then root.Anchored = wasAnchored end
 	if humanoid.Parent then humanoid.AutoRotate = wasAutoRotate end
-	if not ok then warn("[ScrapSearch] " .. tostring(problem)) end
+	if not ok then warn("[PickleSearch] " .. tostring(problem)) end
 
 	-- If the animation fails to load, searching still works.
 	return isValid() and prompt.Enabled

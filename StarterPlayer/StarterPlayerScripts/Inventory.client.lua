@@ -19,7 +19,7 @@ local function label(parent, text, size, position)
 	}, parent)
 end
 local gui = make("ScreenGui", {
-	Name = "ScrapInventory", ResetOnSpawn = false, DisplayOrder = 10,
+	Name = "PickleInventory", ResetOnSpawn = false, DisplayOrder = 10,
 }, player:WaitForChild("PlayerGui"))
 local button = make("TextButton", {
 	Name = "InventoryButton", Text = "Inventory",

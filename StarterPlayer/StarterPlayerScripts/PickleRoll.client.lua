@@ -1,9 +1,9 @@
--- LocalScript: StarterPlayer > StarterPlayerScripts > ScrapRoll
+-- LocalScript: StarterPlayer > StarterPlayerScripts > PickleRoll
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local TweenService = game:GetService("TweenService")
 local player = Players.LocalPlayer
-local event = ReplicatedStorage:WaitForChild("ScrapRollResult")
+local event = ReplicatedStorage:WaitForChild("PickleRollResult")
 local random = Random.new()
 local activeGui
 local activeTween
@@ -38,7 +38,7 @@ event.OnClientEvent:Connect(function(winner, items)
 	if activeGui then activeGui:Destroy() end
 
 	local gui = make("ScreenGui", {
-		Name = "ScrapRoll",
+		Name = "PickleRoll",
 		ResetOnSpawn = false,
 		DisplayOrder = 20,
 	}, player:WaitForChild("PlayerGui"))
