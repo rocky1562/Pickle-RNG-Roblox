@@ -3,11 +3,11 @@
 local Players = game:GetService("Players")
 
 local prices = {
-	["Rusty Bolt"] = 1,
-	["Copper Wire"] = 3,
-	["Broken Phone"] = 10,
-	["Old Graphics Card"] = 50,
-	["Alien Battery"] = 250,
+	["Dill Pickle"] = 1,
+	["Sweet Pickle"] = 3,
+	["Spicy Pickle"] = 10,
+	["Golden Pickle"] = 50,
+	["Cosmic Pickle"] = 250,
 }
 local function setupCoins(player)
 	local stats = player:FindFirstChild("leaderstats")
@@ -38,8 +38,8 @@ if not prompt then
 	prompt = Instance.new("ProximityPrompt")
 	prompt.Parent = station
 end
-prompt.ActionText = "Sell All Scrap"
-prompt.ObjectText = "Scrap Buyer"
+prompt.ActionText = "Sell All Pickles"
+prompt.ObjectText = "Pickle Buyer"
 prompt.KeyboardKeyCode = Enum.KeyCode.E
 prompt.HoldDuration = 0.5
 prompt.MaxActivationDistance = 10
@@ -102,14 +102,14 @@ prompt.Triggered:Connect(function(player)
 		end
 	end
 	if total == 0 then
-		notify(player, "No scrap to sell. Search the pile first!")
+		notify(player, "No pickles to sell. Search the barrel first!")
 		return
 	end
 	-- No yielding between reading, clearing, and crediting the inventory.
 	-- Unknown items are kept instead of being deleted without payment.
 	for _, count in ipairs(sold) do count.Value = 0 end
 	coins.Value = coins.Value + total
-	notify(player, "Sold " .. quantity .. " scrap for +" .. total .. " Coins!")
+	notify(player, "Sold " .. quantity .. " pickles for +" .. total .. " Coins!")
 end)
 Players.PlayerRemoving:Connect(function(player)
 	lastSales[player] = nil
