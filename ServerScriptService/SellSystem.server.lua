@@ -9,25 +9,6 @@ local prices = {
 	["Golden Pickle"] = 50,
 	["Cosmic Pickle"] = 250,
 }
-local function setupCoins(player)
-	local stats = player:FindFirstChild("leaderstats")
-	if not stats then
-		stats = Instance.new("Folder")
-		stats.Name = "leaderstats"
-		stats.Parent = player
-	end
-	local coins = stats:FindFirstChild("Coins")
-	if not coins then
-		coins = Instance.new("IntValue")
-		coins.Name = "Coins"
-		coins.Value = 0
-		coins.Parent = stats
-	end
-	return coins
-end
-Players.PlayerAdded:Connect(setupCoins)
-for _, player in ipairs(Players:GetPlayers()) do setupCoins(player) end
-
 local station = workspace:WaitForChild("SellStation", 30)
 if not station or not station:IsA("BasePart") then
 	warn("SellSystem: Add a Part named SellStation directly inside Workspace.")
@@ -42,7 +23,7 @@ local function isOnPad(player)
 	local character = player.Character
 	local root = character and character:FindFirstChild("HumanoidRootPart")
 	local humanoid = character and character:FindFirstChildOfClass("Humanoid")
-	if not root or not humanoid or humanoid.Health <= 0 then return false end
+	if player:GetAttribute("DataLoaded") ~= true or not root or not humanoid or humanoid.Health <= 0 then return false end
 	local position = station.CFrame:PointToObjectSpace(root.Position)
 	local half = station.Size / 2
 	return math.abs(position.X) <= half.X
@@ -82,9 +63,10 @@ local function notify(player, message)
 end
 
 local function sellAll(player)
+	if player:GetAttribute("DataLoaded") ~= true then return end
 	if not isOnPad(player) then return end
 	local inventory = player:FindFirstChild("Inventory")
-	local coins = setupCoins(player)
+	local coins = player.leaderstats.Coins
 	local sold = {}
 	local total, quantity = 0, 0
 	if inventory then

@@ -3,14 +3,6 @@
 local Players = game:GetService("Players")
 local costs = {50, 150, 400}
 local speeds = {1.25, 1.5, 2}
-local function initialize(player)
-	if player:GetAttribute("SearchLevel") == nil then
-		player:SetAttribute("SearchLevel", 0)
-	end
-end
-Players.PlayerAdded:Connect(initialize)
-for _, player in ipairs(Players:GetPlayers()) do initialize(player) end
-
 local station = workspace:WaitForChild("UpgradeStation", 30)
 if not station or not station:IsA("BasePart") then
 	warn("UpgradeSystem: Add a Part named UpgradeStation directly inside Workspace.")
@@ -80,6 +72,7 @@ end
 
 local lastPurchase = {}
 prompt.Triggered:Connect(function(player)
+	if player:GetAttribute("DataLoaded") ~= true then return end
 	local character = player.Character
 	local root = character and character:FindFirstChild("HumanoidRootPart")
 	local humanoid = character and character:FindFirstChildOfClass("Humanoid")

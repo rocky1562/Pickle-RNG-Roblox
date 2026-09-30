@@ -47,7 +47,8 @@ local function playSearch(player, character, humanoid, root)
 	local wasAnchored = root.Anchored
 	local wasAutoRotate = humanoid.AutoRotate
 	local function isValid()
-		return player.Parent == Players and player.Character == character
+		return player:GetAttribute("DataLoaded") == true
+			and player.Parent == Players and player.Character == character
 			and character.Parent ~= nil and humanoid.Health > 0
 			and root.Parent ~= nil and pile.Parent ~= nil
 	end
@@ -111,6 +112,7 @@ local function showResult(player, item)
 end
 
 prompt.Triggered:Connect(function(player)
+	if player:GetAttribute("DataLoaded") ~= true then return end
 	local character = player.Character
 	local root = character and character:FindFirstChild("HumanoidRootPart")
 	local humanoid = character and character:FindFirstChildOfClass("Humanoid")
