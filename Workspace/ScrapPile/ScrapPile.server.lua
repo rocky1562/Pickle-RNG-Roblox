@@ -80,8 +80,10 @@ local function playSearch(player, character, humanoid, root)
 			root.CFrame = CFrame.lookAt(root.Position, target)
 		end
 		root.Anchored = true
-		track:Play(0.15)
-		local finishDeadline = os.clock() + math.min(track.Length, 15)
+		local speeds = {[0] = 1, [1] = 1.25, [2] = 1.5, [3] = 2}
+		local speed = speeds[player:GetAttribute("SearchLevel") or 0] or 1
+		track:Play(0.15, 1, speed)
+		local finishDeadline = os.clock() + math.min(track.Length / speed, 15)
 		repeat
 			task.wait(0.05)
 		until not isValid() or not track.IsPlaying or os.clock() >= finishDeadline
