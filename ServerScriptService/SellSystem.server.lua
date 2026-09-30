@@ -33,20 +33,24 @@ if not station or not station:IsA("BasePart") then
 	warn("SellSystem: Add a Part named SellStation directly inside Workspace.")
 	return
 end
-local prompt = station:FindFirstChildOfClass("ProximityPrompt")
-if not prompt then
-	prompt = Instance.new("ProximityPrompt")
-	prompt.Parent = station
+-- The sell pad uses a server-side zone above its top surface.
+for _, child in ipairs(station:GetDescendants()) do
+	if child:IsA("ProximityPrompt") then child:Destroy() end
 end
-prompt.ActionText = "Sell All Pickles"
-prompt.ObjectText = "Pickle Buyer"
-prompt.KeyboardKeyCode = Enum.KeyCode.E
-prompt.HoldDuration = 0.5
-prompt.MaxActivationDistance = 10
-prompt.RequiresLineOfSight = false
-prompt.Enabled = true
+local inside = {}
+local function isOnPad(player)
+	local character = player.Character
+	local root = character and character:FindFirstChild("HumanoidRootPart")
+	local humanoid = character and character:FindFirstChildOfClass("Humanoid")
+	if not root or not humanoid or humanoid.Health <= 0 then return false end
+	local position = station.CFrame:PointToObjectSpace(root.Position)
+	local half = station.Size / 2
+	return math.abs(position.X) <= half.X
+		and math.abs(position.Z) <= half.Z
+		and position.Y >= half.Y - 0.5
+		and position.Y <= half.Y + 6
+end
 
-local lastSales = {}
 local function notify(player, message)
 	local playerGui = player:FindFirstChild("PlayerGui")
 	if not playerGui then return end
@@ -77,16 +81,8 @@ local function notify(player, message)
 	task.delay(3, function() gui:Destroy() end)
 end
 
-prompt.Triggered:Connect(function(player)
-	local character = player.Character
-	local root = character and character:FindFirstChild("HumanoidRootPart")
-	local humanoid = character and character:FindFirstChildOfClass("Humanoid")
-	if not prompt.Enabled or not root or not humanoid or humanoid.Health <= 0 then return end
-	if (root.Position - station.Position).Magnitude > prompt.MaxActivationDistance then return end
-	local now = os.clock()
-	if lastSales[player] and now - lastSales[player] < 1 then return end
-	lastSales[player] = now
-
+local function sellAll(player)
+	if not isOnPad(player) then return end
 	local inventory = player:FindFirstChild("Inventory")
 	local coins = setupCoins(player)
 	local sold = {}
@@ -110,7 +106,26 @@ prompt.Triggered:Connect(function(player)
 	for _, count in ipairs(sold) do count.Value = 0 end
 	coins.Value = coins.Value + total
 	notify(player, "Sold " .. quantity .. " pickles for +" .. total .. " Coins!")
-end)
+end
+
 Players.PlayerRemoving:Connect(function(player)
-	lastSales[player] = nil
+	inside[player] = nil
 end)
+
+-- Sell once on entry, not repeatedly while a player stands on the pad.
+-- Position checks avoid multiple limb touch events and missed spawn-on-pad events.
+while station:IsDescendantOf(workspace) do
+	for _, player in ipairs(Players:GetPlayers()) do
+		local onPad = isOnPad(player)
+		local character = player.Character
+		if onPad then
+			if inside[player] ~= character then
+				inside[player] = character
+				sellAll(player)
+			end
+		else
+			inside[player] = nil
+		end
+	end
+	task.wait(0.15)
+end
