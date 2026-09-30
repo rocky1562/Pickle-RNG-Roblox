@@ -35,6 +35,72 @@ local function chooseItem()
 	end
 end
 
+local searchAnimation = Instance.new("Animation")
+searchAnimation.Name = "SearchPile"
+searchAnimation.AnimationId = "rbxassetid://71576008338045"
+searchAnimation.Parent = script
+
+local function playSearch(player, character, humanoid, root)
+	local track
+	local wasAnchored = root.Anchored
+	local wasAutoRotate = humanoid.AutoRotate
+	local function isValid()
+		return player.Parent == Players and player.Character == character
+			and character.Parent ~= nil and humanoid.Health > 0
+			and root.Parent ~= nil and pile.Parent ~= nil
+	end
+
+	local ok, problem = pcall(function()
+		local animator = humanoid:FindFirstChildOfClass("Animator")
+		if not animator then
+			animator = Instance.new("Animator")
+			animator.Parent = humanoid
+		end
+		track = animator:LoadAnimation(searchAnimation)
+		track.Priority = Enum.AnimationPriority.Action
+		track.Looped = false
+
+		-- Loading has a time limit so an unavailable asset cannot lock the player.
+		local loadDeadline = os.clock() + 5
+		while track.Length == 0 and os.clock() < loadDeadline do
+			if not isValid() then return end
+			task.wait(0.05)
+		end
+		if track.Length == 0 then
+			error("Search animation did not load. Check asset permissions and rig type.")
+		end
+		if not isValid() then return end
+
+		-- Face the pile and hold position only while searching.
+		local target = Vector3.new(pile.Position.X, root.Position.Y, pile.Position.Z)
+		humanoid.AutoRotate = false
+		if (target - root.Position).Magnitude > 0.01 then
+			root.CFrame = CFrame.lookAt(root.Position, target)
+		end
+		root.Anchored = true
+		track:Play(0.15)
+		local finishDeadline = os.clock() + math.min(track.Length, 15)
+		repeat
+			task.wait(0.05)
+		until not isValid() or not track.IsPlaying or os.clock() >= finishDeadline
+	end)
+
+	-- Always restore movement, including after death, reset, or a loading error.
+	if track then
+		pcall(function()
+			track:Stop(0.15)
+			track:Destroy()
+		end)
+	end
+	if root.Parent then root.Anchored = wasAnchored end
+	if humanoid.Parent then humanoid.AutoRotate = wasAutoRotate end
+	if not ok then warn("[ScrapSearch] " .. tostring(problem)) end
+
+	-- If the animation fails to load, searching still works.
+	return isValid() and prompt.Enabled
+		and (root.Position - pile.Position).Magnitude <= prompt.MaxActivationDistance
+end
+
 -- Only the server chooses and awards loot; the client animates the result.
 local function showResult(player, item)
 	rollEvent:FireClient(player, item, items)
@@ -61,7 +127,15 @@ prompt.Triggered:Connect(function(player)
 	if cooldowns[player] and now - cooldowns[player] < cooldownSeconds then
 		return
 	end
-	cooldowns[player] = now
+	-- Block repeat prompts during loading and playback.
+	cooldowns[player] = math.huge
+	local completed = playSearch(player, character, humanoid, root)
+	if not completed then
+		cooldowns[player] = nil
+		return
+	end
+	-- The reel cooldown starts after the character animation ends.
+	cooldowns[player] = os.clock()
 
 	local item = chooseItem()
 
