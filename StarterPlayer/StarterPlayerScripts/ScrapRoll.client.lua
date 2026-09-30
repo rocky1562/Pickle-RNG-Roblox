@@ -53,7 +53,7 @@ event.OnClientEvent:Connect(function(winner, items)
 	}, gui)
 	make("UISizeConstraint", {MaxSize = Vector2.new(660, 260)}, panel)
 	make("UICorner", {CornerRadius = UDim.new(0, 16)}, panel)
-	text(panel, "SCRAPYARD ROLL", UDim2.new(1, 0, 0, 44), UDim2.fromOffset(0, 8))
+	text(panel, "PICKLE RNG", UDim2.new(1, 0, 0, 44), UDim2.fromOffset(0, 8))
 	local status = text(panel, "Rolling...", UDim2.new(1, -24, 0, 44),
 		UDim2.new(0, 12, 1, -52))
 
