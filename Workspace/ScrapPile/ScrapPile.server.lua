@@ -2,9 +2,17 @@ local pile = script.Parent
 local prompt = pile:WaitForChild("ProximityPrompt")
 local Players = game:GetService("Players")
 local random = Random.new()
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local rollEvent = ReplicatedStorage:FindFirstChild("ScrapRollResult")
+if not rollEvent then
+	rollEvent = Instance.new("RemoteEvent")
+	rollEvent.Name = "ScrapRollResult"
+	rollEvent.Parent = ReplicatedStorage
+end
+assert(rollEvent:IsA("RemoteEvent"), "ScrapRollResult must be a RemoteEvent")
 
 local cooldowns = {}
-local cooldownSeconds = 3
+local cooldownSeconds = 5.5 -- 3.5-second spin + 1.5-second result + a small buffer.
 
 -- Weights add up to 100, so these are percentage chances.
 local items = {
@@ -27,37 +35,9 @@ local function chooseItem()
 	end
 end
 
+-- Only the server chooses and awards loot; the client animates the result.
 local function showResult(player, item)
-	local playerGui = player:WaitForChild("PlayerGui")
-
-	-- Replace this player's previous result.
-	local previous = playerGui:FindFirstChild("ScrapResult")
-	if previous then
-		previous:Destroy()
-	end
-
-	local billboard = Instance.new("BillboardGui")
-	billboard.Name = "ScrapResult"
-	billboard.Adornee = pile
-	billboard.Size = UDim2.fromOffset(320, 80)
-	billboard.StudsOffset = Vector3.new(0, 5, 0)
-	billboard.AlwaysOnTop = true
-
-	local label = Instance.new("TextLabel")
-	label.Size = UDim2.fromScale(1, 1)
-	label.BackgroundColor3 = Color3.fromRGB(25, 25, 30)
-	label.BackgroundTransparency = 0.2
-	label.Text = "You found:\n" .. item.name
-	label.TextColor3 = item.color
-	label.TextSize = 24
-	label.Font = Enum.Font.GothamBold
-	label.Parent = billboard
-
-	billboard.Parent = playerGui
-
-	task.delay(3, function()
-		billboard:Destroy()
-	end)
+	rollEvent:FireClient(player, item, items)
 end
 
 prompt.Triggered:Connect(function(player)
