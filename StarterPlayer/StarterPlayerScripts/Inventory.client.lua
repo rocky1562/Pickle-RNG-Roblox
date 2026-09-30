@@ -18,46 +18,22 @@ local function label(parent, text, size, position)
 		TextXAlignment = Enum.TextXAlignment.Left,
 	}, parent)
 end
-local gui = make("ScreenGui", {
-	Name = "ScrapInventory", ResetOnSpawn = false, DisplayOrder = 10,
-}, player:WaitForChild("PlayerGui"))
-local button = make("TextButton", {
-	Name = "InventoryButton", Text = "Inventory",
-	Position = UDim2.new(0, 16, 0.5, -24), Size = UDim2.fromOffset(140, 48),
-	BackgroundColor3 = Color3.fromRGB(255, 210, 60),
-	TextColor3 = Color3.fromRGB(22, 25, 32),
-	Font = Enum.Font.GothamBold, TextSize = 18, BorderSizePixel = 0,
-}, gui)
-round(button)
-local panel = make("Frame", {
-	Name = "InventoryPanel", Visible = false,
-	AnchorPoint = Vector2.new(0.5, 0.5), Position = UDim2.fromScale(0.5, 0.5),
-	Size = UDim2.fromScale(0.9, 0.75),
-	BackgroundColor3 = Color3.fromRGB(22, 25, 32), BorderSizePixel = 0,
-}, gui)
-round(panel)
-make("UISizeConstraint", {MaxSize = Vector2.new(520, 440)}, panel)
-label(panel, "YOUR SCRAP", UDim2.new(1, -90, 0, 36), UDim2.fromOffset(20, 12))
-local summary = label(panel, "0 items collected", UDim2.new(1, -40, 0, 24), UDim2.fromOffset(20, 48))
-summary.TextSize = 14
-summary.TextColor3 = Color3.fromRGB(165, 175, 190)
-local close = make("TextButton", {
-	Text = "X", Size = UDim2.fromOffset(44, 44), Position = UDim2.new(1, -56, 0, 10),
-	BackgroundColor3 = Color3.fromRGB(45, 50, 62), BorderSizePixel = 0,
-	TextColor3 = Color3.new(1, 1, 1), Font = Enum.Font.GothamBold, TextSize = 18,
-}, panel)
-round(close)
-local list = make("ScrollingFrame", {
-	Position = UDim2.fromOffset(16, 84), Size = UDim2.new(1, -32, 1, -104),
-	BackgroundTransparency = 1, BorderSizePixel = 0,
-	CanvasSize = UDim2.fromOffset(0, 0), AutomaticCanvasSize = Enum.AutomaticSize.Y,
-	ScrollingDirection = Enum.ScrollingDirection.Y, ScrollBarThickness = 6,
-}, panel)
-make("UIListLayout", {Padding = UDim.new(0, 8), SortOrder = Enum.SortOrder.LayoutOrder}, list)
-local empty = label(panel, "No scrap yet. Search the pile to find loot!",
-	UDim2.new(1, -48, 0, 80), UDim2.fromOffset(24, 96))
-empty.TextWrapped = true
-empty.TextXAlignment = Enum.TextXAlignment.Center
+-- Copy ScrapInventory into StarterGui first. Rename its children as documented.
+local gui = player:WaitForChild("PlayerGui"):WaitForChild("ScrapInventory")
+local button = gui:WaitForChild("InventoryButton")
+local panel = gui:WaitForChild("InventoryPanel")
+local summary = panel:WaitForChild("Summary")
+local close = panel:WaitForChild("CloseButton")
+local list = panel:WaitForChild("ItemList")
+local empty = panel:WaitForChild("EmptyMessage")
+panel.Visible = false
+
+-- Remove any sample loot rows captured when copying the UI during a playtest.
+for _, child in ipairs(list:GetChildren()) do
+	if child:IsA("Frame") then child:Destroy() end
+end
+-- Layout, colors, fonts, and button text come from your StarterGui objects.
+-- Item rows are still generated from the live inventory below.
 local colors = {
 	["Rusty Bolt"] = Color3.fromRGB(200, 200, 200),
 	["Copper Wire"] = Color3.fromRGB(200, 200, 200),
